@@ -4,16 +4,18 @@ using BackendAPI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace BackendAPI.Migrations
 {
-    [DbContext(typeof(ApartamentAdsDbContext))]
-    partial class ApartamentAdsDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(ApartmentAdsDbContext))]
+    [Migration("20231001121549_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,7 +64,7 @@ namespace BackendAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("ApartamentId")
+                    b.Property<int>("ApartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -75,13 +77,13 @@ namespace BackendAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApartamentId")
+                    b.HasIndex("ApartmentId")
                         .IsUnique();
 
                     b.ToTable("Advertisements");
                 });
 
-            modelBuilder.Entity("BackendAPI.Models.Apartament", b =>
+            modelBuilder.Entity("BackendAPI.Models.Apartment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,10 +101,6 @@ namespace BackendAPI.Migrations
                     b.Property<int>("Floor")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("Images")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
@@ -111,7 +109,7 @@ namespace BackendAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Apartaments");
+                    b.ToTable("Apartments");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.Object", b =>
@@ -121,6 +119,21 @@ namespace BackendAPI.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Grade")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
@@ -143,12 +156,19 @@ namespace BackendAPI.Migrations
                     b.Property<int>("ApartamentId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ApartmentId")
+                        .HasColumnType("int");
+
                     b.Property<double>("Grade")
                         .HasColumnType("float");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ApartamentId");
+                    b.HasIndex("ApartmentId");
 
                     b.ToTable("Rooms");
                 });
@@ -187,13 +207,13 @@ namespace BackendAPI.Migrations
 
             modelBuilder.Entity("BackendAPI.Models.Advertisement", b =>
                 {
-                    b.HasOne("BackendAPI.Models.Apartament", "Apartament")
+                    b.HasOne("BackendAPI.Models.Apartment", "Apartment")
                         .WithOne("Advertisement")
-                        .HasForeignKey("BackendAPI.Models.Advertisement", "ApartamentId")
+                        .HasForeignKey("BackendAPI.Models.Advertisement", "ApartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Apartament");
+                    b.Navigation("Apartment");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.Object", b =>
@@ -209,19 +229,18 @@ namespace BackendAPI.Migrations
 
             modelBuilder.Entity("BackendAPI.Models.Room", b =>
                 {
-                    b.HasOne("BackendAPI.Models.Apartament", "Apartament")
+                    b.HasOne("BackendAPI.Models.Apartment", "Apartment")
                         .WithMany("Rooms")
-                        .HasForeignKey("ApartamentId")
+                        .HasForeignKey("ApartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Apartament");
+                    b.Navigation("Apartment");
                 });
 
-            modelBuilder.Entity("BackendAPI.Models.Apartament", b =>
+            modelBuilder.Entity("BackendAPI.Models.Apartment", b =>
                 {
-                    b.Navigation("Advertisement")
-                        .IsRequired();
+                    b.Navigation("Advertisement");
 
                     b.Navigation("Rooms");
                 });

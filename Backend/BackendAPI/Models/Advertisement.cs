@@ -14,12 +14,12 @@ public class Advertisement : IEntityTypeConfiguration<Advertisement>
     public string Title { get; set; }
     public string Description { get; set; }
     
-    public int ApartamentId { get; set; }
-    public virtual Apartament Apartament { get; set; }
+    public int ApartmentId { get; set; }
+    public virtual Apartment Apartment { get; set; }
 
     public void Configure(EntityTypeBuilder<Advertisement> builder)
     {
-        builder.HasOne(m => m.Apartament)
+        builder.HasOne(m => m.Apartment)
             .WithOne(m => m.Advertisement);
     }
 }

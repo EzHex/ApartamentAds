@@ -4,13 +4,13 @@ using Object = BackendAPI.Models.Object;
 
 namespace BackendAPI;
 
-public class ApartamentAdsDbContext : DbContext
+public class ApartmentAdsDbContext : DbContext
 {
-    public ApartamentAdsDbContext(DbContextOptions options) : base(options) { }
+    public ApartmentAdsDbContext(DbContextOptions options) : base(options) { }
 
-    protected ApartamentAdsDbContext() { }
+    protected ApartmentAdsDbContext() { }
 
-    public virtual DbSet<Apartament> Apartaments { get; set; } = null!;
+    public virtual DbSet<Apartment> Apartments { get; set; } = null!;
     public virtual DbSet<Room> Rooms { get; set; } = null!;
     public virtual DbSet<Object> Objects { get; set; } = null!;
     public virtual DbSet<User> Users { get; set; } = null!;

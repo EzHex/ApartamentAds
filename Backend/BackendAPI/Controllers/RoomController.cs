@@ -2,9 +2,9 @@
 
 public class RoomController
 {
-    private readonly ApartamentAdsDbContext _context;
+    private readonly ApartmentAdsDbContext _context;
 
-    public RoomController(ApartamentAdsDbContext context)
+    public RoomController(ApartmentAdsDbContext context)
     {
         this._context = context;
     }

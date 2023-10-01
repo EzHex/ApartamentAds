@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BackendAPI.Models;
 
-public class Apartament : IEntityTypeConfiguration<Apartament>
+public class Apartment : IEntityTypeConfiguration<Apartment>
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -21,30 +21,25 @@ public class Apartament : IEntityTypeConfiguration<Apartament>
     
     public double Rating { get; set; }
     
-    public byte[] Images { get; set; }
-
-    public Apartament(string address, int floor, int number, double area, double rating, byte[] images)
+    public Apartment(string address, int floor, int number, double area, double rating)
     {
         Address = address;
         Floor = floor;
         Number = number;
         Area = area;
         Rating = rating;
-        Images = images;
     }
 
-    public Apartament()
-    {
-    }
+    public Apartment() { }
     
     public virtual List<Room> Rooms { get; set; }
     
-    public virtual Advertisement Advertisement { get; set; }
+    public virtual Advertisement? Advertisement { get; set; }
 
-    public void Configure(EntityTypeBuilder<Apartament> builder)
+    public void Configure(EntityTypeBuilder<Apartment> builder)
     {
         builder.HasMany(m => m.Rooms)
-            .WithOne(m => m.Apartament)
+            .WithOne(m => m.Apartment)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
