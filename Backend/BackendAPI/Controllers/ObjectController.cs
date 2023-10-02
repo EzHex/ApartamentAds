@@ -18,17 +18,23 @@ public class ObjectController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<IEnumerable<ObjectDto>> GetList()
+    public async Task<IEnumerable<ObjectDto>> GetList(int apartmentId, int roomId)
     {
-        var objects = await _context.Objects.ToListAsync();
+        var objects = await _context.Objects
+            .Where(o => o.RoomId == roomId)
+            .Where(o => o.Room.ApartmentId == apartmentId)
+            .ToListAsync();
 
         return objects.Select(o => new ObjectDto(o.Id, o.Name, o.Description, o.Image, o.Grade));
     }
     
     [HttpGet("{objectId}")]
-    public async Task<ActionResult<CreateObjectDto>> Get(int objectId)
+    public async Task<ActionResult<CreateObjectDto>> Get(int apartmentId, int roomId, int objectId)
     {
-        var firstObject = await _context.Objects.FirstOrDefaultAsync(o => o.Id == objectId);
+        var firstObject = await _context.Objects
+            .Where(o => o.RoomId == roomId)
+            .Where(o => o.Room.ApartmentId == apartmentId)
+            .FirstOrDefaultAsync(o => o.Id == objectId);
 
         if (firstObject == null)
             return NotFound();
@@ -37,9 +43,12 @@ public class ObjectController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<CreatedResult>> Create(ObjectDto objectDto)
+    public async Task<ActionResult<CreatedResult>> Create(int roomId, ObjectDto objectDto)
     {
-        var newObject = new Object(objectDto.Name, objectDto.Grade, objectDto.Description, objectDto.Image);
+        var newObject = new Object(objectDto.Name, objectDto.Grade, objectDto.Description, objectDto.Image)
+         {
+             RoomId = roomId
+         };
 
         _context.Objects.Add(newObject);
         await _context.SaveChangesAsync();

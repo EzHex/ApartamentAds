@@ -16,12 +16,6 @@ public class ApartamentController : ControllerBase
         this._context = context;
     }
     
-    // api/apartments GET List 200
-    // api/apartments/{id} GET Read 200
-    // api/apartments POST Create 201
-    // api/apartments/{id} PUT Update 200
-    // api/apartments/{id} DELETE Delete 200
-    
     [HttpGet]
     public async Task<IEnumerable<ApartmentDto>> GetList()
     {

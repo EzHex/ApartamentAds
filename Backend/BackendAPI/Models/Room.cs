@@ -21,7 +21,7 @@ public class Room : IEntityTypeConfiguration<Room>
 
     public Room() { }
 
-    public int ApartamentId { get; set; }
+    public int ApartmentId { get; set; }
     public virtual Apartment Apartment { get; set; }
     public virtual List<Object> Objects { get; set; }
     
