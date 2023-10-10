@@ -15,18 +15,21 @@ public class Object : IEntityTypeConfiguration<Object>
     public string Description { get; set; }
     public string Image { get; set; }
 
-    public Object(string name, double grade, string description, string image)
+    public Object(string name, double grade, string description, string image, int roomId)
     {
         Name = name;
         Grade = grade;
         Description = description;
         Image = image;
+        RoomId = roomId;
     }
 
     public Object() { }
 
     public int RoomId { get; set; }
     public virtual Room Room { get; set; }
+    
+    public virtual List<Comment> Comments { get; set; }
     
     public void Configure(EntityTypeBuilder<Object> builder) { }
 }

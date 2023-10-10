@@ -16,4 +16,5 @@ public class ApartmentAdsDbContext : DbContext
     public virtual DbSet<User> Users { get; set; } = null!;
     public virtual DbSet<Admin> Admins { get; set; } = null!;
     public virtual DbSet<Advertisement> Advertisements { get; set; } = null!;
+    public virtual DbSet<Comment> Comments { get; set; } = null!;
 }

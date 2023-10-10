@@ -7,7 +7,7 @@ using Object = BackendAPI.Models.Object;
 namespace BackendAPI.Controllers;
 
 [ApiController]
-[Route("api/apartments/{apartmentId}/rooms/{roomsId}/objects")]
+[Route("api/apartments/{apartmentId}/rooms/{roomId}/objects")]
 public class ObjectController : ControllerBase
 {
     private readonly ApartmentAdsDbContext _context;
@@ -18,18 +18,21 @@ public class ObjectController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<IEnumerable<ObjectDto>> GetList(int apartmentId, int roomId)
+    public async Task<IActionResult> GetList(int apartmentId, int roomId)
     {
         var objects = await _context.Objects
             .Where(o => o.RoomId == roomId)
             .Where(o => o.Room.ApartmentId == apartmentId)
             .ToListAsync();
 
-        return objects.Select(o => new ObjectDto(o.Id, o.Name, o.Description, o.Image, o.Grade));
+        if (objects.Count == 0)
+            return NotFound();
+        
+        return Ok(objects.Select(o => new ObjectDto(o.Id, o.Name, o.Description, o.Image, o.Grade)));
     }
     
     [HttpGet("{objectId}")]
-    public async Task<ActionResult<CreateObjectDto>> Get(int apartmentId, int roomId, int objectId)
+    public async Task<ActionResult<ObjectDto>> Get(int apartmentId, int roomId, int objectId)
     {
         var firstObject = await _context.Objects
             .Where(o => o.RoomId == roomId)
@@ -39,27 +42,36 @@ public class ObjectController : ControllerBase
         if (firstObject == null)
             return NotFound();
         
-        return new CreateObjectDto(firstObject.Name, firstObject.Description, firstObject.Image, firstObject.Grade);
+        return new ObjectDto(firstObject.Id, firstObject.Name, firstObject.Description, firstObject.Image,
+            firstObject.Grade);
     }
     
     [HttpPost]
-    public async Task<ActionResult<CreatedResult>> Create(int roomId, ObjectDto objectDto)
+    public async Task<ActionResult<ObjectDto>> Create(int roomId, CreateObjectDto objectDto)
     {
-        var newObject = new Object(objectDto.Name, objectDto.Grade, objectDto.Description, objectDto.Image)
-         {
-             RoomId = roomId
-         };
+        var validator = new CreateObjectDtoValidator();
+        var result = await validator.ValidateAsync(objectDto);
+        
+        if (!result.IsValid)
+            return UnprocessableEntity(result.Errors);
+
+        var newObject = new Object(objectDto.Name, objectDto.Grade, objectDto.Description, objectDto.Image,
+            roomId);
 
         _context.Objects.Add(newObject);
         await _context.SaveChangesAsync();
         
-        return Created("",  new ObjectDto(newObject.Id, newObject.Name, newObject.Description, newObject.Image, newObject.Grade));
+        return Created("",  new ObjectDto(newObject.Id, newObject.Name, newObject.Description,
+            newObject.Image, newObject.Grade));
     }
     
     [HttpPut("{objectId}")]
-    public async Task<ActionResult<ObjectDto>> Update(int objectId, UpdateObjectDto updateObjectDto)
+    public async Task<ActionResult<ObjectDto>> Update(int apartmentId, int roomId, int objectId, UpdateObjectDto updateObjectDto)
     {
-        var firstObject = await _context.Objects.FirstOrDefaultAsync(o => o.Id == objectId);
+        var firstObject = await _context.Objects
+            .Where(o => o.RoomId == roomId)
+            .Where(o => o.Room.ApartmentId == apartmentId)
+            .FirstOrDefaultAsync(o => o.Id == objectId);
 
         if (firstObject == null)
             return NotFound();
@@ -71,13 +83,17 @@ public class ObjectController : ControllerBase
         _context.Update(firstObject);
         await _context.SaveChangesAsync();
         
-        return Ok(new ObjectDto(firstObject.Id, firstObject.Name, firstObject.Description, firstObject.Image, firstObject.Grade));
+        return Ok(new ObjectDto(firstObject.Id, firstObject.Name, firstObject.Description,
+            firstObject.Image, firstObject.Grade));
     }
     
     [HttpDelete("{objectId}")]
-    public async Task<ActionResult> Delete(int objectId)
+    public async Task<ActionResult> Delete(int apartmentId, int roomId, int objectId)
     {
-        var firstObject = await _context.Objects.FirstOrDefaultAsync(o => o.Id == objectId);
+        var firstObject = await _context.Objects
+            .Where(o => o.RoomId == roomId)
+            .Where(o => o.Room.ApartmentId == apartmentId)
+            .FirstOrDefaultAsync(o => o.Id == objectId);
         
         if (firstObject == null)
             return NotFound();

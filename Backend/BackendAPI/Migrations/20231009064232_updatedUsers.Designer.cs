@@ -4,6 +4,7 @@ using BackendAPI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BackendAPI.Migrations
 {
     [DbContext(typeof(ApartmentAdsDbContext))]
-    partial class ApartmentAdsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231009064232_updatedUsers")]
+    partial class updatedUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,15 +67,9 @@ namespace BackendAPI.Migrations
                     b.Property<int>("ApartmentId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -119,31 +115,6 @@ namespace BackendAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Apartments");
-                });
-
-            modelBuilder.Entity("BackendAPI.Models.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ObjectId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ObjectId");
-
-                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.Object", b =>
@@ -258,17 +229,6 @@ namespace BackendAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BackendAPI.Models.Comment", b =>
-                {
-                    b.HasOne("BackendAPI.Models.Object", "Object")
-                        .WithMany("Comments")
-                        .HasForeignKey("ObjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Object");
-                });
-
             modelBuilder.Entity("BackendAPI.Models.Object", b =>
                 {
                     b.HasOne("BackendAPI.Models.Room", "Room")
@@ -296,11 +256,6 @@ namespace BackendAPI.Migrations
                     b.Navigation("Advertisement");
 
                     b.Navigation("Rooms");
-                });
-
-            modelBuilder.Entity("BackendAPI.Models.Object", b =>
-                {
-                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.Room", b =>

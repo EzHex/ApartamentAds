@@ -13,7 +13,18 @@ public class Advertisement : IEntityTypeConfiguration<Advertisement>
     
     public string Title { get; set; }
     public string Description { get; set; }
-    
+    public double Price { get; set; }
+    public DateTime Date { get; set; }
+
+    public Advertisement(string title, string description, DateTime date, double price, int apartmentId)
+    {
+        Title = title;
+        Description = description;
+        Date = date;
+        Price = price;
+        ApartmentId = apartmentId;
+    }
+
     public int ApartmentId { get; set; }
     public virtual Apartment Apartment { get; set; }
 

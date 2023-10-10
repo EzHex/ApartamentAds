@@ -7,11 +7,11 @@ namespace BackendAPI.Controllers;
 
 [ApiController]
 [Route("api/apartments")]
-public class ApartamentController : ControllerBase
+public class ApartmentController : ControllerBase
 {
     private readonly ApartmentAdsDbContext _context;
 
-    public ApartamentController(ApartmentAdsDbContext context)
+    public ApartmentController(ApartmentAdsDbContext context)
     {
         this._context = context;
     }
@@ -28,27 +28,42 @@ public class ApartamentController : ControllerBase
     public async Task<ActionResult<ApartmentDto>> Get(int apartmentId)
     {
         var firstApartment = await _context.Apartments.FirstOrDefaultAsync(a => a.Id == apartmentId);
-
+        
         if (firstApartment == null)
             return NotFound();
 
-        return new ApartmentDto(firstApartment.Id, firstApartment.Address, firstApartment.Floor, firstApartment.Number, firstApartment.Area, firstApartment.Rating);
+        return new ApartmentDto(firstApartment.Id, firstApartment.Address, firstApartment.Floor,
+            firstApartment.Number, firstApartment.Area, firstApartment.Rating);
     }
     
     [HttpPost]
     public async Task<ActionResult<ApartmentDto>> Create(CreateApartmentDto createApartmentDto)
     {
-        var newApartment = new Apartment(createApartmentDto.Address, createApartmentDto.Floor, createApartmentDto.Number, createApartmentDto.Area, createApartmentDto.Rating);
+        var validator = new CreateApartmentDtoValidator();
+        var result = await validator.ValidateAsync(createApartmentDto);
+        
+        if (!result.IsValid)
+            return UnprocessableEntity(result.Errors);
 
+        var newApartment = new Apartment(createApartmentDto.Address, createApartmentDto.Floor,
+            createApartmentDto.Number, createApartmentDto.Area, createApartmentDto.Rating, createApartmentDto.UserId);
+        
         _context.Apartments.Add(newApartment);
         await _context.SaveChangesAsync();
         
-        return Created("",  new ApartmentDto(newApartment.Id, newApartment.Address, newApartment.Floor, newApartment.Number, newApartment.Area, newApartment.Rating));
+        return Created("",  new ApartmentDto(newApartment.Id, newApartment.Address, newApartment.Floor,
+            newApartment.Number, newApartment.Area, newApartment.Rating));
     }
     
     [HttpPut("{apartmentId}")]
     public async Task<ActionResult<ApartmentDto>> Update(int apartmentId, UpdateApartmentDto updateApartmentDto)
     {
+        var validator = new UpdateApartmentDtoValidator();
+        var result = await validator.ValidateAsync(updateApartmentDto);
+        
+        if (!result.IsValid)
+            return UnprocessableEntity(result.Errors);
+        
         var firstApartment = await _context.Apartments.FirstOrDefaultAsync(a => a.Id == apartmentId);
 
         if (firstApartment == null)
@@ -57,7 +72,8 @@ public class ApartamentController : ControllerBase
         firstApartment.Rating = updateApartmentDto.Rating;
         await _context.SaveChangesAsync();
 
-        return new ApartmentDto(firstApartment.Id, firstApartment.Address, firstApartment.Floor, firstApartment.Number, firstApartment.Area, firstApartment.Rating);
+        return new ApartmentDto(firstApartment.Id, firstApartment.Address, firstApartment.Floor,
+            firstApartment.Number, firstApartment.Area, firstApartment.Rating);
     }
     
     [HttpDelete("{apartmentId}")]

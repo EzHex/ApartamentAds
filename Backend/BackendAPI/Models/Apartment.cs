@@ -21,13 +21,14 @@ public class Apartment : IEntityTypeConfiguration<Apartment>
     
     public double Rating { get; set; }
     
-    public Apartment(string address, int floor, int number, double area, double rating)
+    public Apartment(string address, int floor, int number, double area, double rating, int userId)
     {
         Address = address;
         Floor = floor;
         Number = number;
         Area = area;
         Rating = rating;
+        UserId = userId;
     }
 
     public Apartment() { }
@@ -35,11 +36,17 @@ public class Apartment : IEntityTypeConfiguration<Apartment>
     public virtual List<Room> Rooms { get; set; }
     
     public virtual Advertisement? Advertisement { get; set; }
+    
+    public int UserId { get; set; }
+    public virtual User User { get; set; }
 
     public void Configure(EntityTypeBuilder<Apartment> builder)
     {
         builder.HasMany(m => m.Rooms)
             .WithOne(m => m.Apartment)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasOne(m => m.User)
+            .WithMany(m => m.Apartments);
     }
 }

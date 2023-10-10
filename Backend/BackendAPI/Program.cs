@@ -1,4 +1,6 @@
 using BackendAPI;
+using BackendAPI.Dtos;
+using FluentValidation;
 using InstantAPIs;
 using Microsoft.EntityFrameworkCore;
 

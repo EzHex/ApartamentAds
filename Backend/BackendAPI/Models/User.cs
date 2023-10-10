@@ -16,6 +16,8 @@ public class User : IEntityTypeConfiguration<User>
     public string Name { get; set; }
     public DateTime LastLogin { get; set; }
     
+    public virtual List<Apartment> Apartments { get; set; }
+    
     public User(string login, string email, string password, string name, DateTime lastLogin)
     {
         Login = login;

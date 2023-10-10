@@ -1,5 +1,6 @@
 ﻿using BackendAPI.Dtos;
 using BackendAPI.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,11 +18,14 @@ public class RoomController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<IEnumerable<RoomDto>> GetList(int apartmentId)
+    public async Task<IActionResult> GetList(int apartmentId)
     {
         var rooms = await _context.Rooms.Where(r => r.ApartmentId == apartmentId).ToListAsync();
 
-        return rooms.Select(r => new RoomDto(r.Id, r.Name, r.Grade));
+        if (rooms.Count == 0)
+            return NotFound();
+        
+        return Ok(rooms.Select(r => new RoomDto(r.Id, r.Name, r.Grade)));
     }
 
     [HttpGet("{roomId}")]
@@ -40,6 +44,12 @@ public class RoomController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<RoomDto>> Create(int apartmentId, RoomDto roomDto)
     {
+        var validator = new CreateRoomDtoValidator();
+        var result = await validator.ValidateAsync(roomDto);
+        
+        if (!result.IsValid)
+            return UnprocessableEntity(result.Errors);
+        
         var newRoom = new Room(roomDto.Name, roomDto.Grade)
         {
             ApartmentId = apartmentId
