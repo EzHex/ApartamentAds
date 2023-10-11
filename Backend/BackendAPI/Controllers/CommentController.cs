@@ -17,11 +17,18 @@ public class CommentController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<IEnumerable<CommentDto>> GetList(int objectId)
+    public async Task<IActionResult> GetList(int apartmentId, int roomId, int objectId)
     {
-        var comments = await _context.Comments.Where(m => m.ObjectId == objectId).ToListAsync();
+        var comments = await _context.Comments
+            .Where(c => c.ObjectId == objectId)
+            .Where(c => c.Object.RoomId == roomId)
+            .Where(c => c.Object.Room.ApartmentId == apartmentId)
+            .ToListAsync();
+        
+        if (comments.Count == 0)
+            return NotFound();
 
-        return comments.Select(c => new CommentDto(c.Content));
+        return Ok(comments.Select(c => new CommentDto(c.Content)));
     }
     
     [HttpPost]
@@ -42,9 +49,11 @@ public class CommentController : ControllerBase
     }
     
     [HttpDelete("{commentId}")]
-    public async Task<ActionResult<CommentDto>> Delete(int objectId, int commentId)
+    public async Task<ActionResult<CommentDto>> Delete(int apartmentId, int roomId, int objectId, int commentId)
     {
-        var firstComment = await _context.Comments.FirstOrDefaultAsync(c => c.Id == commentId && c.ObjectId == objectId);
+        var firstComment = await _context.Comments
+            .FirstOrDefaultAsync(c => c.Id == commentId && c.ObjectId == objectId &&
+                                      c.Object.RoomId == roomId && c.Object.Room.ApartmentId == apartmentId);
         
         if (firstComment == null)
             return NotFound();

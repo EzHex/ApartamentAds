@@ -68,6 +68,11 @@ public class AdvertisementController : ControllerBase
         
         if (!result.IsValid)
             return UnprocessableEntity(result.Errors);
+        
+        var ad = await _context.Advertisements.FirstOrDefaultAsync(a => a.ApartmentId == advertisementDto.ApartmentId);
+        
+        if (ad != null)
+            return Conflict("Advertisement for this apartment already exists");
 
         var newAdvertisement = new Advertisement(advertisementDto.Title, advertisementDto.Description,
             DateTime.Now, advertisementDto.Price, advertisementDto.ApartmentId);
@@ -79,7 +84,7 @@ public class AdvertisementController : ControllerBase
             newAdvertisement.Description, newAdvertisement.Price, newAdvertisement.Date));
     }
     
-    [HttpDelete]
+    [HttpDelete("{adId}")]
     public async Task<ActionResult> Delete(int adId)
     {
         var firstAdvertisement = await _context.Advertisements.FirstOrDefaultAsync(a => a.Id == adId);
