@@ -51,13 +51,13 @@ public class AdvertisementController : ControllerBase
         if (apartment == null)
             return NotFound();
         
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == apartment.UserId);
-        
-        if (user == null)
-            return NotFound();
+        // var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == apartment.UserId);
+        //
+        // if (user == null)
+        //     return NotFound();
 
         return new AdvertisementWithOwnerDataDto(firstAdvertisement.Title, firstAdvertisement.Description,
-            firstAdvertisement.Price, firstAdvertisement.Date, user.Name, user.Email);
+            firstAdvertisement.Price, firstAdvertisement.Date);
     }
     
     [HttpPost]

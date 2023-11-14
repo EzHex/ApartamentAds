@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BackendAPI.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BackendAPI.Models;
 
-public class Apartment : IEntityTypeConfiguration<Apartment>
+public class Apartment : IEntityTypeConfiguration<Apartment>, IUserOwnedResource
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -21,14 +22,13 @@ public class Apartment : IEntityTypeConfiguration<Apartment>
     
     public double Rating { get; set; }
     
-    public Apartment(string address, int floor, int number, double area, double rating, int userId)
+    public Apartment(string address, int floor, int number, double area, double rating)
     {
         Address = address;
         Floor = floor;
         Number = number;
         Area = area;
         Rating = rating;
-        UserId = userId;
     }
 
     public Apartment() { }
@@ -37,16 +37,15 @@ public class Apartment : IEntityTypeConfiguration<Apartment>
     
     public virtual Advertisement? Advertisement { get; set; }
     
-    public int UserId { get; set; }
-    public virtual User User { get; set; }
+    public string UserId { get; set; }
+    public ApartmentUser User { get; set; }
 
     public void Configure(EntityTypeBuilder<Apartment> builder)
     {
         builder.HasMany(m => m.Rooms)
             .WithOne(m => m.Apartment)
             .OnDelete(DeleteBehavior.Cascade);
-        
-        builder.HasOne(m => m.User)
-            .WithMany(m => m.Apartments);
     }
+
+    
 }

@@ -4,6 +4,7 @@ using BackendAPI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BackendAPI.Migrations
 {
     [DbContext(typeof(ApartmentAdsDbContext))]
-    partial class ApartmentAdsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231114072100_identity")]
+    partial class identity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +54,7 @@ namespace BackendAPI.Migrations
                     b.HasIndex("ApartmentId")
                         .IsUnique();
 
-                    b.ToTable("Advertisements", (string)null);
+                    b.ToTable("Advertisements");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.Apartment", b =>
@@ -87,7 +89,7 @@ namespace BackendAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Apartments", (string)null);
+                    b.ToTable("Apartments");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.Comment", b =>
@@ -112,7 +114,7 @@ namespace BackendAPI.Migrations
 
                     b.HasIndex("ObjectId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.Object", b =>
@@ -145,7 +147,7 @@ namespace BackendAPI.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("Objects", (string)null);
+                    b.ToTable("Objects");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.Room", b =>
@@ -170,12 +172,13 @@ namespace BackendAPI.Migrations
 
                     b.HasIndex("ApartmentId");
 
-                    b.ToTable("Rooms", (string)null);
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("BackendAPI.Models.User", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
@@ -186,6 +189,7 @@ namespace BackendAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -201,6 +205,14 @@ namespace BackendAPI.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -208,6 +220,10 @@ namespace BackendAPI.Migrations
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");

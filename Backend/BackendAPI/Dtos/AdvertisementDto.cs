@@ -4,7 +4,7 @@ namespace BackendAPI.Dtos;
 
 public record AdvertisementDto(int Id, string Title, string Description, double Price, DateTime Date);
 
-public record AdvertisementWithOwnerDataDto(string Title, string Description, double Price, DateTime Date, string OwnerName, string OwnerEmail);
+public record AdvertisementWithOwnerDataDto(string Title, string Description, double Price, DateTime Date);
 
 public record CreateAdvertisementDto(string Title, string Description, double Price, int ApartmentId);
 

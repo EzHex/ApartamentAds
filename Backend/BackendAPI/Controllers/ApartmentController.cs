@@ -1,7 +1,11 @@
-﻿using BackendAPI.Dtos;
+﻿using System.Security.Claims;
+using BackendAPI.Auth;
+using BackendAPI.Dtos;
 using BackendAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace BackendAPI.Controllers;
 
@@ -10,10 +14,12 @@ namespace BackendAPI.Controllers;
 public class ApartmentController : ControllerBase
 {
     private readonly ApartmentAdsDbContext _context;
+    private readonly IAuthorizationService _authorizationService;
 
-    public ApartmentController(ApartmentAdsDbContext context)
+    public ApartmentController(ApartmentAdsDbContext context, IAuthorizationService authorizationService)
     {
-        this._context = context;
+        _context = context;
+        _authorizationService = authorizationService;
     }
     
     [HttpGet]
@@ -37,6 +43,7 @@ public class ApartmentController : ControllerBase
     }
     
     [HttpPost]
+    [Authorize(Roles = Roles.User)]
     public async Task<ActionResult<ApartmentDto>> Create(CreateApartmentDto createApartmentDto)
     {
         var validator = new CreateApartmentDtoValidator();
@@ -46,8 +53,11 @@ public class ApartmentController : ControllerBase
             return UnprocessableEntity(result.Errors);
 
         var newApartment = new Apartment(createApartmentDto.Address, createApartmentDto.Floor,
-            createApartmentDto.Number, createApartmentDto.Area, createApartmentDto.Rating, createApartmentDto.UserId);
-        
+            createApartmentDto.Number, createApartmentDto.Area, createApartmentDto.Rating)
+        {
+            UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+        };
+
         _context.Apartments.Add(newApartment);
         await _context.SaveChangesAsync();
         
@@ -56,6 +66,7 @@ public class ApartmentController : ControllerBase
     }
     
     [HttpPut("{apartmentId}")]
+    [Authorize(Roles = Roles.User)]
     public async Task<ActionResult<ApartmentDto>> Update(int apartmentId, UpdateApartmentDto updateApartmentDto)
     {
         var validator = new UpdateApartmentDtoValidator();
@@ -68,6 +79,10 @@ public class ApartmentController : ControllerBase
 
         if (firstApartment == null)
             return NotFound();
+
+        var authorizationResult = _authorizationService.AuthorizeAsync(User, firstApartment, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
         
         firstApartment.Rating = updateApartmentDto.Rating;
         await _context.SaveChangesAsync();
