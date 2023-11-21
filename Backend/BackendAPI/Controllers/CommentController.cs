@@ -78,7 +78,7 @@ public class CommentController : ControllerBase
         
         var authorizationResult = _authorizationService
             .AuthorizeAsync(User, firstComment, PolicyNames.ResourceOwner);
-        if (!authorizationResult.Result.Succeeded)
+        if (!authorizationResult.Result.Succeeded && !User.IsInRole(Roles.Admin))
             return Forbid();
 
         _context.Comments.Remove(firstComment);

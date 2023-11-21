@@ -120,7 +120,7 @@ public class ApartmentController : ControllerBase
         
         var authorizationResult = _authorizationService
             .AuthorizeAsync(User, firstApartment, PolicyNames.ResourceOwner);
-        if (!authorizationResult.Result.Succeeded)
+        if (!authorizationResult.Result.Succeeded && !User.IsInRole(Roles.Admin))
             return Forbid();
         
         _context.Apartments.Remove(firstApartment);
