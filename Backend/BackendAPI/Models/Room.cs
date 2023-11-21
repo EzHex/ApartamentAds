@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BackendAPI.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BackendAPI.Models;
 
-public class Room : IEntityTypeConfiguration<Room>
+public class Room : IEntityTypeConfiguration<Room>, IUserOwnedResource
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -20,6 +21,9 @@ public class Room : IEntityTypeConfiguration<Room>
     }
 
     public Room() { }
+    
+    public string UserId { get; set; }
+    public ApartmentUser User { get; set; }
 
     public int ApartmentId { get; set; }
     public virtual Apartment Apartment { get; set; }
@@ -30,5 +34,7 @@ public class Room : IEntityTypeConfiguration<Room>
         builder.HasMany(m => m.Objects)
             .WithOne(m => m.Room)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        
     }
 }

@@ -45,6 +45,10 @@ public class Apartment : IEntityTypeConfiguration<Apartment>, IUserOwnedResource
         builder.HasMany(m => m.Rooms)
             .WithOne(m => m.Apartment)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasOne(m => m.Advertisement)
+            .WithOne(m => m.Apartment)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     

@@ -1,20 +1,26 @@
-﻿using BackendAPI.Dtos;
-using BackendAPI.Models;
+﻿using System.Security.Claims;
+using BackendAPI.Auth;
+using BackendAPI.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Object = BackendAPI.Models.Object;
 
 namespace BackendAPI.Controllers;
 
 [ApiController]
+[Authorize(Roles = Roles.User)]
 [Route("api/apartments/{apartmentId}/rooms/{roomId}/objects")]
 public class ObjectController : ControllerBase
 {
     private readonly ApartmentAdsDbContext _context;
+    private readonly IAuthorizationService _authorizationService;
 
-    public ObjectController(ApartmentAdsDbContext context)
+    public ObjectController(ApartmentAdsDbContext context, IAuthorizationService authorizationService)
     {
-        this._context = context;
+        _context = context;
+        _authorizationService = authorizationService;
     }
     
     [HttpGet]
@@ -27,6 +33,14 @@ public class ObjectController : ControllerBase
 
         if (objects.Count == 0)
             return NotFound();
+        
+        objects.ForEach(o =>
+        {
+            var authorizationResult = _authorizationService
+                .AuthorizeAsync(User, o, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Result.Succeeded)
+                Forbid();
+        });
         
         return Ok(objects.Select(o => new ObjectDto(o.Id, o.Name, o.Description, o.Image, o.Grade)));
     }
@@ -42,6 +56,11 @@ public class ObjectController : ControllerBase
         if (firstObject == null)
             return NotFound();
         
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstObject, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
+        
         return new ObjectDto(firstObject.Id, firstObject.Name, firstObject.Description, firstObject.Image,
             firstObject.Grade);
     }
@@ -56,7 +75,10 @@ public class ObjectController : ControllerBase
             return UnprocessableEntity(result.Errors);
 
         var newObject = new Object(objectDto.Name, objectDto.Grade, objectDto.Description, objectDto.Image,
-            roomId);
+            roomId)
+        {
+            UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+        };
 
         _context.Objects.Add(newObject);
         await _context.SaveChangesAsync();
@@ -75,6 +97,11 @@ public class ObjectController : ControllerBase
 
         if (firstObject == null)
             return NotFound();
+        
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstObject, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
         
         firstObject.Description = updateObjectDto.Description;
         firstObject.Image = updateObjectDto.Image;
@@ -97,6 +124,11 @@ public class ObjectController : ControllerBase
         
         if (firstObject == null)
             return NotFound();
+        
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstObject, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
         
         _context.Remove(firstObject);
         await _context.SaveChangesAsync();

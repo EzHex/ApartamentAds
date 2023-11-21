@@ -1,7 +1,11 @@
-﻿using BackendAPI.Dtos;
+﻿using System.Security.Claims;
+using BackendAPI.Auth;
+using BackendAPI.Dtos;
 using BackendAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace BackendAPI.Controllers;
 
@@ -10,12 +14,15 @@ namespace BackendAPI.Controllers;
 public class AdvertisementController : ControllerBase
 {
     private readonly ApartmentAdsDbContext _context;
+    private readonly IAuthorizationService _authorizationService;
     
-    public AdvertisementController(ApartmentAdsDbContext context)
+    public AdvertisementController(ApartmentAdsDbContext context, IAuthorizationService authorizationService)
     {
-        this._context = context;
+        _context = context;
+        _authorizationService = authorizationService;
     }
     
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IEnumerable<AdvertisementDto>> GetList()
     {
@@ -25,25 +32,18 @@ public class AdvertisementController : ControllerBase
             a.Date));
     }
     
+    [AllowAnonymous]
     [HttpGet("{adId}")]
-    public async Task<ActionResult<AdvertisementDto>> Get(int adId)
+    public async Task<IActionResult> Get(int adId)
     {
         var firstAdvertisement = await _context.Advertisements.FirstOrDefaultAsync(a => a.Id == adId);
         
         if (firstAdvertisement == null)
             return NotFound();
 
-        return new AdvertisementDto(firstAdvertisement.Id, firstAdvertisement.Title, firstAdvertisement.Description,
-            firstAdvertisement.Price, firstAdvertisement.Date);
-    }
-    
-    [HttpGet("{adId}/registered-users")]
-    public async Task<ActionResult<AdvertisementWithOwnerDataDto>> GetWithOwnerData(int adId)
-    {
-        var firstAdvertisement = await _context.Advertisements.FirstOrDefaultAsync(a => a.Id == adId);
-        
-        if (firstAdvertisement == null)
-            return NotFound();
+        if (!User.Identity.IsAuthenticated)
+            return Ok(new AdvertisementWithoutOwnerDataDto(firstAdvertisement.Title, firstAdvertisement.Description,
+                firstAdvertisement.Price, firstAdvertisement.Date));
         
         var apartment = await _context.Apartments
             .FirstOrDefaultAsync(a => a.Id == firstAdvertisement.ApartmentId);
@@ -51,13 +51,13 @@ public class AdvertisementController : ControllerBase
         if (apartment == null)
             return NotFound();
         
-        // var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == apartment.UserId);
-        //
-        // if (user == null)
-        //     return NotFound();
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == apartment.UserId);
+        
+        if (user == null)
+            return NotFound();
 
-        return new AdvertisementWithOwnerDataDto(firstAdvertisement.Title, firstAdvertisement.Description,
-            firstAdvertisement.Price, firstAdvertisement.Date);
+        return Ok(new AdvertisementWithOwnerDataDto(firstAdvertisement.Title, firstAdvertisement.Description,
+            firstAdvertisement.Price, firstAdvertisement.Date, user.Email));
     }
     
     [HttpPost]
@@ -69,13 +69,21 @@ public class AdvertisementController : ControllerBase
         if (!result.IsValid)
             return UnprocessableEntity(result.Errors);
         
-        var ad = await _context.Advertisements.FirstOrDefaultAsync(a => a.ApartmentId == advertisementDto.ApartmentId);
+        var apartment = await _context.Apartments
+            .FirstOrDefaultAsync(a => a.Id == advertisementDto.ApartmentId);
+        if (apartment == null)
+            return UnprocessableEntity();
         
+        var ad = await _context.Advertisements
+            .FirstOrDefaultAsync(a => a.ApartmentId == advertisementDto.ApartmentId);
         if (ad != null)
-            return Conflict("Advertisement for this apartment already exists");
+            return Conflict(new ErrorDto("Advertisement for this apartment already exists"));
 
         var newAdvertisement = new Advertisement(advertisementDto.Title, advertisementDto.Description,
-            DateTime.Now, advertisementDto.Price, advertisementDto.ApartmentId);
+            DateTime.Now, advertisementDto.Price, advertisementDto.ApartmentId)
+        {
+            UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+        };
         
         _context.Advertisements.Add(newAdvertisement);
         await _context.SaveChangesAsync();
@@ -91,6 +99,11 @@ public class AdvertisementController : ControllerBase
         
         if (firstAdvertisement == null)
             return NotFound();
+        
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstAdvertisement, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
         
         _context.Advertisements.Remove(firstAdvertisement);
         await _context.SaveChangesAsync();

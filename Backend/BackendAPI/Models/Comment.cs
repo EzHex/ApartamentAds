@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BackendAPI.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BackendAPI.Models;
 
-public class Comment : IEntityTypeConfiguration<Comment>
+public class Comment : IEntityTypeConfiguration<Comment>, IUserOwnedResource
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -22,14 +23,12 @@ public class Comment : IEntityTypeConfiguration<Comment>
         ObjectId = objectId;
     }
 
+    public string UserId { get; set; }
+    public ApartmentUser User { get; set; }
+    
     public int ObjectId { get; set; }
     
     public virtual Object Object { get; set; }
     
-    public void Configure(EntityTypeBuilder<Comment> builder)
-    {
-        builder.HasOne(m => m.Object)
-            .WithMany(m => m.Comments)
-            .OnDelete(DeleteBehavior.Cascade);
-    }
+    public void Configure(EntityTypeBuilder<Comment> builder) { }
 }

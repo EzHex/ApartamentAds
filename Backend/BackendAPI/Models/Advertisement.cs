@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BackendAPI.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BackendAPI.Models;
 
-public class Advertisement : IEntityTypeConfiguration<Advertisement>
+public class Advertisement : IEntityTypeConfiguration<Advertisement>, IUserOwnedResource
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -24,13 +25,12 @@ public class Advertisement : IEntityTypeConfiguration<Advertisement>
         Price = price;
         ApartmentId = apartmentId;
     }
+    
+    public string UserId { get; set; }
+    public ApartmentUser User { get; set; }
 
     public int ApartmentId { get; set; }
     public virtual Apartment Apartment { get; set; }
 
-    public void Configure(EntityTypeBuilder<Advertisement> builder)
-    {
-        builder.HasOne(m => m.Apartment)
-            .WithOne(m => m.Advertisement);
-    }
+    public void Configure(EntityTypeBuilder<Advertisement> builder) { }
 }

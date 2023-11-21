@@ -1,20 +1,27 @@
-﻿using BackendAPI.Dtos;
+﻿using System.Security.Claims;
+using BackendAPI.Auth;
+using BackendAPI.Dtos;
 using BackendAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace BackendAPI.Controllers;
 
 [ApiController]
+[Authorize(Roles = Roles.User)]
 [Route("api/apartments/{apartmentId}/rooms")]
 public class RoomController : ControllerBase
 {
     private readonly ApartmentAdsDbContext _context;
+    private readonly IAuthorizationService _authorizationService;
 
-    public RoomController(ApartmentAdsDbContext context)
+    public RoomController(ApartmentAdsDbContext context, IAuthorizationService authorizationService)
     {
-        this._context = context;
+        _context = context;
+        _authorizationService = authorizationService;
     }
     
     [HttpGet]
@@ -24,6 +31,14 @@ public class RoomController : ControllerBase
 
         if (rooms.Count == 0)
             return NotFound();
+        
+        rooms.ForEach(a =>
+        {
+            var authorizationResult = _authorizationService
+                .AuthorizeAsync(User, a, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Result.Succeeded)
+                Forbid();
+        });
         
         return Ok(rooms.Select(r => new RoomDto(r.Id, r.Name, r.Grade)));
     }
@@ -37,6 +52,11 @@ public class RoomController : ControllerBase
 
         if (firstRoom == null)
             return NotFound();
+        
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstRoom, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
         
         return new RoomDto(firstRoom.Id, firstRoom.Name, firstRoom.Grade);
     }
@@ -52,7 +72,8 @@ public class RoomController : ControllerBase
         
         var newRoom = new Room(roomDto.Name, roomDto.Grade)
         {
-            ApartmentId = apartmentId
+            ApartmentId = apartmentId,
+            UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
         };
 
         _context.Rooms.Add(newRoom);
@@ -71,6 +92,11 @@ public class RoomController : ControllerBase
         if (firstRoom == null)
             return NotFound();
         
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstRoom, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
+        
         firstRoom.Name = updateRoomDto.Name;
         firstRoom.Grade = updateRoomDto.Grade;
         
@@ -88,6 +114,11 @@ public class RoomController : ControllerBase
 
         if (firstRoom == null)
             return NotFound();
+        
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstRoom, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
         
         _context.Remove(firstRoom);
         await _context.SaveChangesAsync();

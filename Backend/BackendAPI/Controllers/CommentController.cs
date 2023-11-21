@@ -1,19 +1,26 @@
-﻿using BackendAPI.Dtos;
+﻿using System.Security.Claims;
+using BackendAPI.Auth;
+using BackendAPI.Dtos;
 using BackendAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace BackendAPI.Controllers;
 
 [ApiController]
+[Authorize(Roles = Roles.User)]
 [Route("api/apartments/{apartmentId}/rooms/{roomId}/objects/{objectId}/comments")]
 public class CommentController : ControllerBase
 {
     private readonly ApartmentAdsDbContext _context;
+    private readonly IAuthorizationService _authorizationService;
 
-    public CommentController(ApartmentAdsDbContext context)
+    public CommentController(ApartmentAdsDbContext context, IAuthorizationService authorizationService)
     {
-        this._context = context;
+        _context = context;
+        _authorizationService = authorizationService;
     }
     
     [HttpGet]
@@ -27,6 +34,14 @@ public class CommentController : ControllerBase
         
         if (comments.Count == 0)
             return NotFound();
+        
+        comments.ForEach(c =>
+        {
+            var authorizationResult = _authorizationService
+                .AuthorizeAsync(User, c, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Result.Succeeded)
+                Forbid();
+        });
 
         return Ok(comments.Select(c => new CommentDto(c.Content)));
     }
@@ -40,7 +55,10 @@ public class CommentController : ControllerBase
         if (!result.IsValid)
             return UnprocessableEntity(result.Errors);
 
-        var newComment = new Comment(commentDto.Content, DateTime.Now, objectId);
+        var newComment = new Comment(commentDto.Content, DateTime.Now, objectId)
+        {
+            UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+        };
         
         _context.Comments.Add(newComment);
         await _context.SaveChangesAsync();
@@ -57,6 +75,11 @@ public class CommentController : ControllerBase
         
         if (firstComment == null)
             return NotFound();
+        
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstComment, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
 
         _context.Comments.Remove(firstComment);
         await _context.SaveChangesAsync();

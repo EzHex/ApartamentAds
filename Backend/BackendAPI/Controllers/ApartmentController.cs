@@ -23,14 +23,26 @@ public class ApartmentController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<IEnumerable<ApartmentDto>> GetList()
+    [Authorize(Roles = Roles.User)]
+    public async Task<IActionResult> GetList()
     {
-        var apartments = await _context.Apartments.ToListAsync();
-
-        return apartments.Select(a => new ApartmentDto(a.Id, a.Address, a.Floor, a.Number, a.Area, a.Rating));
+        var apartments = await _context.Apartments
+            .Where(a => a.UserId == User.FindFirstValue(JwtRegisteredClaimNames.Sub))
+            .ToListAsync();
+        
+        apartments.ForEach(a =>
+        {
+            var authorizationResult = _authorizationService
+                .AuthorizeAsync(User, a, PolicyNames.ResourceOwner);
+            if (!authorizationResult.Result.Succeeded)
+                Forbid();
+        });
+        
+        return Ok(apartments.Select(a => new ApartmentDto(a.Id, a.Address, a.Floor, a.Number, a.Area, a.Rating)));
     }
     
     [HttpGet("{apartmentId}")]
+    [Authorize(Roles = Roles.User)]
     public async Task<ActionResult<ApartmentDto>> Get(int apartmentId)
     {
         var firstApartment = await _context.Apartments.FirstOrDefaultAsync(a => a.Id == apartmentId);
@@ -38,6 +50,11 @@ public class ApartmentController : ControllerBase
         if (firstApartment == null)
             return NotFound();
 
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstApartment, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
+        
         return new ApartmentDto(firstApartment.Id, firstApartment.Address, firstApartment.Floor,
             firstApartment.Number, firstApartment.Area, firstApartment.Rating);
     }
@@ -80,7 +97,8 @@ public class ApartmentController : ControllerBase
         if (firstApartment == null)
             return NotFound();
 
-        var authorizationResult = _authorizationService.AuthorizeAsync(User, firstApartment, PolicyNames.ResourceOwner);
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstApartment, PolicyNames.ResourceOwner);
         if (!authorizationResult.Result.Succeeded)
             return Forbid();
         
@@ -92,12 +110,18 @@ public class ApartmentController : ControllerBase
     }
     
     [HttpDelete("{apartmentId}")]
+    [Authorize(Roles = Roles.User)]
     public async Task<ActionResult> Delete(int apartmentId)
     {
         var firstApartment = await _context.Apartments.FirstOrDefaultAsync(a => a.Id == apartmentId);
 
         if (firstApartment == null)
             return NotFound();
+        
+        var authorizationResult = _authorizationService
+            .AuthorizeAsync(User, firstApartment, PolicyNames.ResourceOwner);
+        if (!authorizationResult.Result.Succeeded)
+            return Forbid();
         
         _context.Apartments.Remove(firstApartment);
         await _context.SaveChangesAsync();
