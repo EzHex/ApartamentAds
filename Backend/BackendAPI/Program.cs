@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Text;
 using BackendAPI;
 using BackendAPI.Auth;
@@ -45,6 +46,12 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, ResourceOwnerAuthorizationHandler>();
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Listen(IPAddress.Any, 7268);
+});
+builder.WebHost.UseIIS();
+builder.Environment.EnvironmentName = "Production";
 
 var app = builder.Build();
 
