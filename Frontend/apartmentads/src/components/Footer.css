@@ -1,0 +1,18 @@
+footer {
+    background-color: black;
+    width: 100%;
+    color: white;
+    padding: 0rem;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+}
+
+footer a {
+    text-decoration: none;
+    color: white;
+}
+
+footer a:hover {
+    color: #555555;
+}
