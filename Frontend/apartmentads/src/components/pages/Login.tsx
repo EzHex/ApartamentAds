@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-
+import { API_URL } from "../../config";
 import Form from "react-bootstrap/Form";
 import Button from 'react-bootstrap/Button';
 import axios from "axios";
@@ -8,14 +8,21 @@ import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
-
 export const Login = () => {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+  
+  const handleUsernameChange = (event : any) => {
+    setUsername(event.target.value);
+  };
+
+  const handlePasswordChange = (event : any) => {
+    setPassword(event.target.value);
+  };
 
   const handleLogin = () => {
     axios
-      .post("http://localhost:7268/api/login", {
+      .post(`${API_URL}/api/login`, {
         username: username,
         password: password,
       })
@@ -42,14 +49,6 @@ export const Login = () => {
       });
   };
 
-  const handleUsernameChange = (event : any) => {
-    setUsername(event.target.value);
-  };
-
-  const handlePasswordChange = (event : any) => {
-    setPassword(event.target.value);
-  };
-
   return <div>
       <div className="h1 text-center">Login</div>
       <Form className="container">
@@ -62,6 +61,7 @@ export const Login = () => {
             onChange={handleUsernameChange}
           />
         </Form.Group>
+        
         <Form.Group className="mb-3" controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control 
@@ -71,9 +71,9 @@ export const Login = () => {
             onChange={handlePasswordChange}
           />
         </Form.Group>
-      <Button variant="primary" onClick={handleLogin}>
-        Submit
-      </Button>
+        <Button variant="primary" onClick={handleLogin}>
+          Submit
+        </Button>
       </Form>
       </div>;
 };

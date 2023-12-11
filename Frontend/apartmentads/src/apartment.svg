@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg  xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 100 100" >
+<title>apartment - clipart</title>
+
+  <path d="M5,98 h90 m-85,0 v-90 h50 v40 m-15,50 v-50 h40 v50" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M20,15 v80" fill="none" stroke="black" stroke-width="4" stroke-dasharray="4 8" />
+  <path d="M30,15 v80" fill="none" stroke="black" stroke-width="4" stroke-dasharray="4 8" />
+  <path d="M40,15 v80" fill="none" stroke="black" stroke-width="4" stroke-dasharray="4 8" />
+  <path d="M50,15 v30" fill="none" stroke="black" stroke-width="4" stroke-dasharray="4 8" />
+  <path d="M55,55 v40" fill="none" stroke="black" stroke-width="4" stroke-dasharray="4 8" /> 
+  <path d="M65,55 v40" fill="none" stroke="black" stroke-width="4" stroke-dasharray="4 8" /> 
+  <path d="M75,55 v40" fill="none" stroke="black" stroke-width="4" stroke-dasharray="4 8" />  
+
+</svg>
+ 

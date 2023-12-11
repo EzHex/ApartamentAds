@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import { Link, NavLink } from "react-router-dom";
 
+import LogoSvg from "../logo.svg";
 import "./Navbar.css";
 import { Logout } from "./Logout";
 
@@ -10,7 +11,7 @@ export const Navbar = () => {
 
   return <nav>
     <Link to={"/"} className="title">
-        Logo
+        <img src={LogoSvg} alt="LOGO" />
     </Link>
     <div className="menu" 
         onClick={ () => {setShowMenu(!showMenu);}}>
@@ -21,6 +22,9 @@ export const Navbar = () => {
     <ul className={showMenu ? "open" : ""}>
         <li>
             <NavLink to={"/ads"}>Ads</NavLink>
+        </li>
+        <li className={loggedIn ? "" : "hide"}>
+            <NavLink to={"/apartments"}>Apartments</NavLink>
         </li>
         <li className={loggedIn ? "hide" : ""}>
             <NavLink to={"/login"}>Login</NavLink>

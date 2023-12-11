@@ -31,8 +31,8 @@ public class ObjectController : ControllerBase
             .Where(o => o.Room.ApartmentId == apartmentId)
             .ToListAsync();
 
-        if (objects.Count == 0)
-            return NotFound();
+        // if (objects.Count == 0)
+        //     return NotFound();
         
         objects.ForEach(o =>
         {

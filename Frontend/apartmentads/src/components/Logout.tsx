@@ -8,6 +8,6 @@ export const Logout = () => {
         window.location.href = "/";
     };
     
-    return <Link to={""} onClick={handleLogout}>Logout</Link>
+    return <Link to={"/"} onClick={handleLogout}>Logout</Link>
 };
 

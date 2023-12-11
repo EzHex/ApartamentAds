@@ -32,8 +32,8 @@ public class CommentController : ControllerBase
             .Where(c => c.Object.Room.ApartmentId == apartmentId)
             .ToListAsync();
         
-        if (comments.Count == 0)
-            return NotFound();
+        // if (comments.Count == 0)
+        //     return NotFound();
         
         comments.ForEach(c =>
         {
@@ -43,7 +43,7 @@ public class CommentController : ControllerBase
                 Forbid();
         });
 
-        return Ok(comments.Select(c => new CommentDto(c.Content)));
+        return Ok(comments.Select(c => new CommentDto(c.Id, c.Content)));
     }
     
     [HttpPost]
@@ -63,7 +63,7 @@ public class CommentController : ControllerBase
         _context.Comments.Add(newComment);
         await _context.SaveChangesAsync();
         
-        return Created("", new CommentDto(newComment.Content));
+        return Created("", new CreateCommentDto(newComment.Content));
     }
     
     [HttpDelete("{commentId}")]

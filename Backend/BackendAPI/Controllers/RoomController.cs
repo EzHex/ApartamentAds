@@ -28,8 +28,8 @@ public class RoomController : ControllerBase
     {
         var rooms = await _context.Rooms.Where(r => r.ApartmentId == apartmentId).ToListAsync();
 
-        if (rooms.Count == 0)
-            return NotFound();
+        // if (rooms.Count == 0)
+        //     return NotFound();
         
         rooms.ForEach(a =>
         {
