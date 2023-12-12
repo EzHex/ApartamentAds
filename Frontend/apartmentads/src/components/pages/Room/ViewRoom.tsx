@@ -108,7 +108,10 @@ function ViewRoom() {
     <div>
         <div className="h1 text-center">Room</div>
         <hr />
-        <div className="container">
+        <div className="container pb-2">
+            <Link to={`/apartments/${apartmentId}`} className="btn btn-secondary">Back</Link>
+        </div>
+        <div className="container pb-5">
             <fieldset>
                 <div className="input-group mb-3">
                     <span className="input-group-text">{">"}</span>

@@ -59,7 +59,19 @@ public class AdvertisementController : ControllerBase
         return Ok(new AdvertisementWithOwnerDataDto(firstAdvertisement.Title, firstAdvertisement.Description,
             firstAdvertisement.Price, firstAdvertisement.Date, user.Email));
     }
+
+    [Authorize(Roles = Roles.User)]
+    [HttpPost("exists")]
+    public async Task<ActionResult> GetIsAdExists(AdBody adBody)
+    {
+        var ad = await _context.Advertisements.FirstOrDefaultAsync(a => a.ApartmentId == adBody.ApartmentId);
+        if (ad == null)
+            return NotFound();
+        
+        return Ok(new Ad(ad.Id));
+    }
     
+    [Authorize(Roles = Roles.User)]
     [HttpPost]
     public async Task<ActionResult<AdvertisementDto>> Create(CreateAdvertisementDto advertisementDto)
     {
@@ -92,6 +104,7 @@ public class AdvertisementController : ControllerBase
             newAdvertisement.Description, newAdvertisement.Price, newAdvertisement.Date));
     }
     
+    [Authorize(Roles = Roles.User)]
     [HttpDelete("{adId}")]
     public async Task<ActionResult> Delete(int adId)
     {

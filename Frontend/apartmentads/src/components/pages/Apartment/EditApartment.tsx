@@ -4,7 +4,7 @@ import withReactContent from "sweetalert2-react-content";
 import { API_URL } from "../../../config";
 import axios from "axios";
 import ApartmentModel from "../../../type/ApartmentModel";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
 import RefreshAccessToken from "../../Auth";
 
@@ -101,7 +101,11 @@ export default function EditApartment() {
     
     return <div>
         <div className="h1 text-center">Edit apartment</div>
-        <div className="container">
+        <hr />
+        <div className="container pb-2">
+            <Link to="/apartments" className="btn btn-secondary">Back</Link>
+        </div>
+        <div className="container pb-5">
             <Form>
                 <Form.Group controlId="formBasicAddress">
                     <Form.Label>Address</Form.Label>

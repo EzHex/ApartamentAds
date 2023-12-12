@@ -51,7 +51,7 @@ export const Login = () => {
 
   return <div>
       <div className="h1 text-center">Login</div>
-      <Form className="container">
+      <Form className="container pb-5">
         <Form.Group className="mb-3" controlId="username">
           <Form.Label>Username</Form.Label>
           <Form.Control 

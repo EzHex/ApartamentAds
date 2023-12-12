@@ -17,6 +17,7 @@ import ViewRoom from './components/pages/Room/ViewRoom';
 import CreateObject from './components/pages/Object/CreateObject';
 import ViewObject from './components/pages/Object/ViewObject';
 import NotFound from './components/pages/NotFound';
+import ViewAd from './components/pages/Ad/ViewAd';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/ads' element={<Ads />} />
+        <Route path='/ads/:id' element={<ViewAd />} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/apartments' element={<Apartments />} />

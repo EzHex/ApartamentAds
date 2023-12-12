@@ -3,6 +3,7 @@ import { API_URL } from "../../../config";
 import axios from "axios";
 import AdModel from "../../../type/AdModel";
 import Ad from "./Ad";
+import { Link } from "react-router-dom";
 
 export const Ads = () => {
   const [ads, setAds] = React.useState<AdModel[]>([]);
@@ -17,7 +18,10 @@ export const Ads = () => {
   return <div>
       <div className="h1 text-center">Ads</div>
       <hr />
-      <div className="container">
+      <div className="container pb-2">
+        <Link to="/" className="btn btn-secondary">Back</Link>
+      </div>
+      <div className="container pb-5">
         <table className="table table-responsive">
           <thead>
             <tr>

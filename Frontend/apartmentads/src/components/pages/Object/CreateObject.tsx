@@ -3,7 +3,7 @@ import { Button, Form } from "react-bootstrap";
 import RefreshAccessToken from "../../Auth";
 import axios from "axios";
 import { API_URL } from "../../../config";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 
@@ -73,7 +73,11 @@ function CreateObject() {
     return (
         <div>
             <div className="h1 text-center">Create object</div>
-            <div className="container">
+            <hr />
+            <div className="container pb-2">
+                <Link to={`/apartments/${apartmentId}/rooms/${roomId}`} className="btn btn-secondary">Back</Link>
+            </div>
+            <div className="container pb-5">
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicName">
                         <Form.Label>Name</Form.Label>

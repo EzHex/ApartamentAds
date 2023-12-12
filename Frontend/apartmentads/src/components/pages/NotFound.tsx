@@ -3,7 +3,7 @@ import React from "react";
 function NotFound() {
     return (
         <div>
-            <div className="container">
+            <div className="container pb-5">
                 <div className="h1 text-center">
                     404 - Not Found
                 </div>

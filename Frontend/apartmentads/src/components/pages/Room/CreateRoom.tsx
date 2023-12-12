@@ -5,7 +5,7 @@ import withReactContent from "sweetalert2-react-content";
 import { API_URL } from "../../../config";
 import axios from "axios";
 import RefreshAccessToken from "../../Auth";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const MySwal = withReactContent(Swal);
 
@@ -60,7 +60,10 @@ function CreateRoom() {
         <div>
             <div className="h1 text-center">Room</div>
             <hr />
-            <div className="container">
+            <div className="container pb-2">
+                <Link to={`/apartments/${apartmentId}/`} className="btn btn-secondary">Back</Link>
+            </div>
+            <div className="container pb-5">
                 <Form>
                     <Form.Group className="mb-3" controlId="formBasicName">
                         <Form.Label>Name</Form.Label>

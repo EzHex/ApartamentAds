@@ -42,7 +42,10 @@ export default function Apartments() {
   return <div>
         <div className="h1 text-center">Apartments</div>
         <hr />
-        <div className="container">
+        <div className="container pb-2">
+            <Link to="/" className="btn btn-secondary">Back</Link>
+        </div>
+        <div className="container pb-5">
             <div className="aligned-right">
                 <Link className="btn btn-success" to={"/create-apartment"}>Create</Link>
             </div>

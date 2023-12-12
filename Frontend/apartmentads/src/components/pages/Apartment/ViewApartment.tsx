@@ -7,12 +7,15 @@ import RoomModel from "../../../type/RoomModel";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Room from "../Room/Room";
+import { Button } from "react-bootstrap";
 
 
 const MySwal = withReactContent(Swal);
 
 function ViewApartment() {
     const id = useParams().id;
+
+    const [adId, setAdId] = React.useState(-1);
     const [rooms, setRooms] = useState<RoomModel[]>([]);
 
     const [address, setAddress] = React.useState("");
@@ -91,13 +94,140 @@ function ViewApartment() {
                 window.location.href = "/";
             });
         });
+
+        axios.post(`${API_URL}/api/ads/exists`, {
+            apartmentId: Number(id)
+        }, {
+            headers: { 
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
+            }
+        }).then((response) => {
+            setAdId(response.data.id);
+        }).catch((error) => {
+            setAdId(-1);
+        });
     }, []);
+
+    function handleAdDelete(event: any) {
+        MySwal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+        })
+        .then((result) => {
+            if (result.isConfirmed) {
+                RefreshAccessToken();
+                axios.delete(`${API_URL}/api/ads/${event.target.value}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                })
+                .then((response) => {
+                    MySwal.fire({
+                        title: "Success",
+                        text: `Advertisement deleted.`,
+                        icon: "success",
+                        confirmButtonText: "Ok",
+                    })
+                    .then(() => {
+                        window.location.href = `/apartments/${id}`;
+                    });
+                })
+                .catch((error) => {
+                    MySwal.fire({
+                        title: "Request failed",
+                        text: `Something went wrong.`,
+                        icon: "error",
+                        confirmButtonText: "Ok",
+                    })
+                    .then(() => {
+                        window.location.href = `/apartments/${id}`;
+                    });
+                });
+            }
+        });
+    
+    }
+
+    async function handlePublish() {
+        const { value: formValues } = await MySwal.fire({
+            title: "Advertisement",
+            html: `
+                <input type="text" class="swal2-input" id="title" placeholder="Title"/>
+                <input type="textarea" class="swal2-input" id="description" placeholder="Description"/>
+                <input type="number" class="swal2-input" id="price" placeholder="Price"/>
+            `,
+            focusConfirm: false,
+            preConfirm: () => {
+                return [
+                    (document.getElementById("title") as HTMLInputElement).value,
+                    (document.getElementById("description") as HTMLInputElement).value,
+                    (document.getElementById("price") as HTMLInputElement).value
+                ]
+            }
+        })
+
+        if (formValues) {
+            RefreshAccessToken();
+
+            axios.post(`${API_URL}/api/ads`, {
+                title: formValues[0],
+                description: formValues[1],
+                price: Number(formValues[2]),
+                apartmentId: id
+            }, { 
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            })
+            .then((response) => {
+                MySwal.fire({
+                    title: "Success",
+                    text: `Advertisement created.`,
+                    icon: "success",
+                    confirmButtonText: "Ok",
+                })
+                .then(() => {
+                    window.location.href = `/apartments/${id}`;
+                });
+            })
+            .catch((error) => {
+                if (error.response.status === 409) {
+                    MySwal.fire({
+                        title: "Request failed",
+                        text: `Apartment already has an advertisement.`,
+                        icon: "error",
+                        confirmButtonText: "Ok",
+                    })
+                    .then(() => {
+                        window.location.href = `/apartments/${id}`;
+                    });
+                }
+                else {
+                    MySwal.fire({
+                        title: "Request failed",
+                        text: `Something went wrong.`,
+                        icon: "error",
+                        confirmButtonText: "Ok",
+                    })
+                    .then(() => {
+                        window.location.href = `/apartments/${id}`;
+                    });
+                }
+            });
+        }
+    }
 
     return (
     <div>
         <div className="h1 text-center">Apartment</div>
         <hr />
-        <div className="container">
+        <div className="container pb-2">
+            <Link to="/apartments" className="btn btn-secondary">Back</Link>
+        </div>
+        <div className="container pb-5">
             <fieldset>
                 <div className="input-group mb-3">
                     <span className="input-group-text">{">"}</span>
@@ -135,6 +265,16 @@ function ViewApartment() {
                     </div>
                 </div>
             </fieldset>
+            <div className="aligned-right">
+                <Button className="btn btn-primary" onClick={handlePublish}>Create ad</Button>
+            </div>
+            {
+                adId !== -1 ? 
+                <div className="aligned-right">
+                    <Button className="btn btn-danger" value={adId} onClick={handleAdDelete}>Delete ad</Button>
+                </div>
+                : null
+            }
             <hr />
             <div className="h1 text-center">Rooms</div>
             <hr />

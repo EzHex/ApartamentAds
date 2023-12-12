@@ -26,6 +26,11 @@ public class ApartmentController : ControllerBase
     [Authorize(Roles = Roles.User)]
     public async Task<IActionResult> GetList()
     {
+        if (User.IsInRole(Roles.Admin))
+            return Ok(await _context.Apartments
+                .Select(a => new ApartmentDto(a.Id, a.Address, a.Floor, a.Number, a.Area, a.Rating))
+                .ToListAsync());
+        
         var apartments = await _context.Apartments
             .Where(a => a.UserId == User.FindFirstValue(JwtRegisteredClaimNames.Sub))
             .ToListAsync();

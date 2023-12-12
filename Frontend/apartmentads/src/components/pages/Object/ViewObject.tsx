@@ -4,7 +4,7 @@ import ObjectModel from "../../../type/ObjectModel";
 import CommentModel from "../../../type/CommentModel";
 import axios from "axios";
 import { API_URL } from "../../../config";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Comment from "../Comment/Comment";
@@ -176,6 +176,9 @@ function ViewObject() {
         <div>
             <div className="h1 text-center">Object</div>
             <hr />
+            <div className="container pb-2">
+                <Link to={`/apartments/${apartmentId}/rooms/${roomId}`} className="btn btn-secondary">Back</Link>
+            </div>
             <div className="container pb-5">
                 <fieldset>
                     <div className="input-group mb-3">

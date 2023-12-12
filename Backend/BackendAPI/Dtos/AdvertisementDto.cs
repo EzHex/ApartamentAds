@@ -5,7 +5,9 @@ namespace BackendAPI.Dtos;
 public record AdvertisementDto(int Id, string Title, string Description, double Price, DateTime Date);
 public record AdvertisementWithoutOwnerDataDto(string Title, string Description, double Price, DateTime Date);
 public record AdvertisementWithOwnerDataDto(string Title, string Description, double Price, DateTime Date, string Email);
+public record Ad(int Id);
 
+public record AdBody(int ApartmentId);
 public record CreateAdvertisementDto(string Title, string Description, double Price, int ApartmentId);
 
 public class CreateAdvertisementDtoValidator : AbstractValidator<CreateAdvertisementDto>

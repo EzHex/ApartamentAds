@@ -51,7 +51,7 @@ export const Register = () => {
 
   return <div>
     <div className="h1 text-center">Registration</div>
-    <Form className="container">
+    <Form className="container pb-5">
         <Form.Group className="mb-3" controlId="username">
           <Form.Label>Username</Form.Label>
           <Form.Control 
